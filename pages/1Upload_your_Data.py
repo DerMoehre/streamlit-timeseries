@@ -23,12 +23,11 @@ def load_file(file):
         return e
 
 
-st.set_page_config(page_title="Upload Data", page_icon="⬆️")
+st.set_page_config(page_title="Upload Data", page_icon="⬆️", layout="wide")
 
 st.title("Upload your data")
 st.sidebar.header("Upload your data")
 
 uploaded_file = st.sidebar.file_uploader("Choose a file")
 if uploaded_file is not None:
-    dataframe = load_file(uploaded_file)
-    st.write(dataframe)
+    st.dataframe(load_file(uploaded_file), use_container_width=True)
