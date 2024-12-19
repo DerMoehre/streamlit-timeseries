@@ -6,6 +6,19 @@ import plotly.express as px
 st.set_page_config(page_title="Upload Data", page_icon="⬆️", layout="wide")
 
 
+def render_initial_main_content():
+    # Instructions when no data is uploaded
+    st.markdown(
+        """
+        ## Procedure
+        1. Upload your file on the right side 👈
+        2. Choose the right columns in your data for the **X** and **Y** axis
+        3. Submit your choice with the button
+        You will get the plotted graph, a brief description of the input data, and the data itself.
+        """
+    )
+
+
 def detect_delimiter(data_string):
     """Detect the delimiter of a CSV file"""
     try:
@@ -112,6 +125,12 @@ if is_data_in_session():
     if "x_axis" in st.session_state and "y_axis" in st.session_state:
         process_data()
 
+    if st.sidebar.button("Delete Data"):
+        for key in st.session_state.keys():
+            del st.session_state[key]
+        st.sidebar.success("Data deleted successfully!")
+        st.rerun()
+
 
 elif uploaded_file:
     # Load new file
@@ -135,13 +154,4 @@ elif uploaded_file:
             st.session_state["y_axis"] = y_axis
             process_data(dataframe, x_axis, y_axis)
 else:
-    # Instructions when no data is uploaded
-    st.markdown(
-        """
-        ## Procedure
-        1. Upload your file on the right side 👈
-        2. Choose the right columns in your data for the **X** and **Y** axis
-        3. Submit your choice with the button
-        You will get the plotted graph, a brief description of the input data, and the data itself.
-        """
-    )
+    render_initial_main_content()
