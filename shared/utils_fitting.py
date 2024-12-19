@@ -14,3 +14,12 @@ def load_data_from_session():
         st.session_state["y_axis"],
         st.session_state["transformed_data"],
     )
+
+
+def train_test_split(data, split_ratio):
+    """Split data into train and test sets"""
+    train_size = int(len(data) * (split_ratio / 100))
+    train_data = data.iloc[:train_size]
+    test_data = data.iloc[train_size:]
+
+    return train_data, test_data
