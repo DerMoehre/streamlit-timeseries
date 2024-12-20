@@ -6,6 +6,10 @@ from shared.utils_fitting import (
     train_test_split,
     return_imported_models,
     test_train_plot,
+    return_frequency,
+    get_model,
+    fit_model,
+    evaluate_performance,
 )
 from shared.utils_upload import is_data_in_session
 
@@ -20,14 +24,52 @@ split_ratio = st.sidebar.slider(
 )
 
 model_list = return_imported_models()
-model = st.sidebar.selectbox(
-    "Select Model", [model_list[model] for model in model_list]
+model = st.sidebar.selectbox("Select Model", [model for model in model_list])
+
+
+freq = return_frequency()
+frequency = st.sidebar.selectbox("Select Frequency", [freq for freq in freq.keys()])
+selected_freq = freq.get(frequency)
+
+season_length = st.sidebar.number_input(
+    "Season Lenght", min_value=1, placeholder="Type a number..."
 )
+
+mae = None
 
 if is_data_in_session():
     x_axis, y_axis, data = load_data_from_session()
     train_data, test_data = train_test_split(data, split_ratio)
-    test_train_plot(data, train_data, test_data, x_axis, y_axis, split_ratio)
+    fig = test_train_plot(data, train_data, test_data, x_axis, y_axis, split_ratio)
+
+    if st.sidebar.button("Fit Model"):
+        selected_model = get_model(model, season_length)
+        with st.spinner("Fitting Model..."):
+            forecast = fit_model(selected_model, train_data, test_data, selected_freq)
+            fig = test_train_plot(
+                data,
+                train_data,
+                test_data,
+                x_axis,
+                y_axis,
+                split_ratio,
+                forecast,
+                model,
+            )
+        st.sidebar.success("Model Fitted Successfully")
+        mae, r2, mape = evaluate_performance(forecast, test_data, model)
+    st.write(
+        f"### Train-Test Split Visualization ({split_ratio}% Train, {100 - split_ratio}% Test)"
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    if mae:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(label="Mean absolute error", value=mae)
+        with col2:
+            st.metric(label="R2", value=r2)
+        with col3:
+            st.metric(label="Mean absolute percentage error", value=mape)
 
 else:
     st.error("You have to first update Data on the upload page.")
