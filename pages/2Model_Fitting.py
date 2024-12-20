@@ -24,15 +24,36 @@ split_ratio = st.sidebar.slider(
 )
 
 model_list = return_imported_models()
-model = st.sidebar.selectbox("Select Model", [model for model in model_list])
-
+model = st.sidebar.selectbox(
+    "Select Model",
+    [model for model in model_list],
+    help="""
+- **AutoARIMA**: Automatically selects the best ARIMA model for your data.  
+  **Pros**: No manual tuning, handles trends and seasonality, adaptable to various datasets.  
+- **SeasonalNaive**: Predicts by repeating the last observed seasonal pattern.  
+  **Pros**: Simple, fast, effective for strong seasonality.  
+- **HoltWinters**: Captures trends and seasonality using weighted smoothing.  
+  **Pros**: Robust for data with clear patterns, easy to interpret.  
+- **HistoricAverage**: Forecasts using the average of historical data.  
+  **Pros**: Extremely simple, efficient, and suitable for stationary data.  
+- **MSTL**: Decomposes data into multiple seasonal components, trend, and residuals.  
+  **Pros**: Ideal for complex seasonality, flexible, and interpretable.
+""",
+)
 
 freq = return_frequency()
-frequency = st.sidebar.selectbox("Select Frequency", [freq for freq in freq.keys()])
+frequency = st.sidebar.selectbox(
+    "Select Frequency",
+    [freq for freq in freq.keys()],
+    help="Select the frequency of the underlying data",
+)
 selected_freq = freq.get(frequency)
 
 season_length = st.sidebar.number_input(
-    "Season Lenght", min_value=1, placeholder="Type a number..."
+    "Season Lenght",
+    min_value=1,
+    placeholder="Type a number...",
+    help="How many periods are in a season?",
 )
 
 mae = None
@@ -65,11 +86,23 @@ if is_data_in_session():
     if mae:
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric(label="Mean absolute error", value=mae)
+            st.metric(
+                label="Mean absolute error",
+                value=mae,
+                help="Measures the average absolute difference between actual and predicted values. Lower values indicate better accuracy.",
+            )
         with col2:
-            st.metric(label="R2", value=r2)
+            st.metric(
+                label="R2",
+                value=r2,
+                help="Indicates how well the forecast explains the variance in the actual data. Values closer to 1 signify a better fit.",
+            )
         with col3:
-            st.metric(label="Mean absolute percentage error", value=mape)
+            st.metric(
+                label="Mean absolute percentage error",
+                value=mape,
+                help="Measures the average percentage error between actual and predicted values. Useful for comparing accuracy across scales.",
+            )
 
 else:
     st.error("You have to first update Data on the upload page.")
