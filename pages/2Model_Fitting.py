@@ -50,11 +50,21 @@ frequency = st.sidebar.selectbox(
 selected_freq = freq.get(frequency)
 
 season_length = st.sidebar.number_input(
-    "Season Lenght",
+    "Season Length",
     min_value=1,
     placeholder="Type a number...",
     help="How many periods are in a season?",
 )
+
+season_mstl = 0
+
+if model == "MSTL":
+    season_mstl = st.sidebar.number_input(
+        "Second Season Length",
+        min_value=0,
+        placeholder="Type a number...",
+        help="How many periods are in a season?",
+    )
 
 mae = None
 
@@ -64,7 +74,7 @@ if is_data_in_session():
     fig = test_train_plot(data, train_data, test_data, x_axis, y_axis, split_ratio)
 
     if st.sidebar.button("Fit Model"):
-        selected_model = get_model(model, season_length)
+        selected_model = get_model(model, season_length, season_mstl)
         with st.spinner("Fitting Model..."):
             forecast, sf = fit_model(
                 selected_model, train_data, test_data, selected_freq

@@ -44,21 +44,28 @@ def return_imported_models():
     return ["AutoARIMA", "SeasonalNaive", "HoltWinters", "HistoricAverage", "MSTL"]
 
 
-def get_model(selected_model, season_length):
+def get_model(selected_model, season_length, season_mstl=None):
     """Retrieve the model based on the selected type and season length."""
+    if selected_model == "MSTL":
+        if season_mstl is None or season_mstl <= 1:
+            return MSTL(season_length=[int(season_length)])
+        else:
+            return MSTL(season_length=[int(season_length), int(season_mstl)])
     model_map = {
         "AutoARIMA": AutoARIMA(season_length=int(season_length)),
         "HoltWinters": HoltWinters(season_length=int(season_length)),
         "SeasonalNaive": SeasonalNaive(season_length=int(season_length)),
         "HistoricAverage": HistoricAverage(),
-        "MSTL": MSTL(season_length=int(season_length)),
     }
     return model_map.get(selected_model)
 
 
-def fit_model(model, training_data, testing_data, freq):
+def fit_model(model, training_data, testing_data, freq, freq_mstl=None):
     """Fit the model to training data and validate it against testing data"""
-    sf = StatsForecast(models=[model], freq=freq, n_jobs=-1)
+    if model == "MSTL":
+        sf = StatsForecast(models=[model], freq=[freq, freq_mstl], n_jobs=-1)
+    else:
+        sf = StatsForecast(models=[model], freq=freq, n_jobs=-1)
     sf.fit(df=training_data)
 
     # Prepare a DataFrame for forecasting
