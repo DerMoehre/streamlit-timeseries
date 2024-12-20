@@ -69,7 +69,7 @@ def fit_model(model, training_data, testing_data, freq):
     forecast_df = forecast_df.rename(columns={"y_hat": "y"})
     forecast_df["Type"] = "Predicted"
 
-    return forecast_df
+    return forecast_df, sf
 
 
 def evaluate_performance(forecast_df, testing_data, model):

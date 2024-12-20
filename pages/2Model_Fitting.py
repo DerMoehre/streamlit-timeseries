@@ -66,7 +66,10 @@ if is_data_in_session():
     if st.sidebar.button("Fit Model"):
         selected_model = get_model(model, season_length)
         with st.spinner("Fitting Model..."):
-            forecast = fit_model(selected_model, train_data, test_data, selected_freq)
+            forecast, sf = fit_model(
+                selected_model, train_data, test_data, selected_freq
+            )
+            st.session_state["fitted_model"] = sf
             fig = test_train_plot(
                 data,
                 train_data,
