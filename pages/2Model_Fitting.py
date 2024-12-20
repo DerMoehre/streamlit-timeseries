@@ -68,6 +68,9 @@ if model == "MSTL":
 
 mae = None
 
+if "last_evaluation" not in st.session_state:
+    st.session_state.last_evaluation = None
+
 if is_data_in_session():
     x_axis, y_axis, data = load_data_from_session()
     train_data, test_data = train_test_split(data, split_ratio)
@@ -92,6 +95,8 @@ if is_data_in_session():
             )
         st.sidebar.success("Model Fitted Successfully")
         mae, r2, mape = evaluate_performance(forecast, test_data, model)
+        current_evaluation = {"mae": mae, "r2": r2, "mape": mape}
+
     st.write(
         f"### Train-Test Split Visualization ({split_ratio}% Train, {100 - split_ratio}% Test)"
     )
@@ -103,19 +108,30 @@ if is_data_in_session():
                 label="Mean absolute error",
                 value=mae,
                 help="Measures the average absolute difference between actual and predicted values. Lower values indicate better accuracy.",
+                delta=None
+                if st.session_state.last_evaluation is None
+                else f"{mae - st.session_state.last_evaluation['mae']:.2f}",
+                delta_color="inverse",
             )
         with col2:
             st.metric(
                 label="R2",
                 value=r2,
                 help="Indicates how well the forecast explains the variance in the actual data. Values closer to 1 signify a better fit.",
+                delta=None
+                if st.session_state.last_evaluation is None
+                else f"{r2 - st.session_state.last_evaluation['r2']:.2f}",
             )
         with col3:
             st.metric(
                 label="Mean absolute percentage error",
                 value=mape,
                 help="Measures the average percentage error between actual and predicted values. Useful for comparing accuracy across scales.",
+                delta=None
+                if st.session_state.last_evaluation is None
+                else f"{mape - st.session_state.last_evaluation['mape']:.2f}",
+                delta_color="inverse",
             )
-
+        st.session_state.last_evaluation = current_evaluation
 else:
     st.error("You have to first update Data on the upload page.")
