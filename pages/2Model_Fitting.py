@@ -4,9 +4,8 @@ import plotly.express as px
 from shared.utils_fitting import (
     load_data_from_session,
     train_test_split,
-    return_imported_models,
+    render_initial_sidebar,
     test_train_plot,
-    return_frequency,
     get_model,
     fit_model,
     evaluate_performance,
@@ -18,53 +17,7 @@ st.set_page_config(page_title="Model Fitting", page_icon="🦾", layout="wide")
 st.title("Model Fitting 🦾")
 
 # Sidebar
-st.sidebar.header("Train-Test Split")
-split_ratio = st.sidebar.slider(
-    "Select Train-Test Split Ratio (%)", min_value=50, max_value=90, value=70, step=1
-)
-
-model_list = return_imported_models()
-model = st.sidebar.selectbox(
-    "Select Model",
-    [model for model in model_list],
-    help="""
-- **AutoARIMA**: Automatically selects the best ARIMA model for your data.  
-  **Pros**: No manual tuning, handles trends and seasonality, adaptable to various datasets.  
-- **SeasonalNaive**: Predicts by repeating the last observed seasonal pattern.  
-  **Pros**: Simple, fast, effective for strong seasonality.  
-- **HoltWinters**: Captures trends and seasonality using weighted smoothing.  
-  **Pros**: Robust for data with clear patterns, easy to interpret.  
-- **HistoricAverage**: Forecasts using the average of historical data.  
-  **Pros**: Extremely simple, efficient, and suitable for stationary data.  
-- **MSTL**: Decomposes data into multiple seasonal components, trend, and residuals.  
-  **Pros**: Ideal for complex seasonality, flexible, and interpretable.
-""",
-)
-
-freq = return_frequency()
-frequency = st.sidebar.selectbox(
-    "Select Frequency",
-    [freq for freq in freq.keys()],
-    help="Select the frequency of the underlying data",
-)
-selected_freq = freq.get(frequency)
-
-season_length = st.sidebar.number_input(
-    "Season Length",
-    min_value=1,
-    placeholder="Type a number...",
-    help="How many periods are in a season?",
-)
-
-season_mstl = 0
-
-if model == "MSTL":
-    season_mstl = st.sidebar.number_input(
-        "Second Season Length",
-        min_value=0,
-        placeholder="Type a number...",
-        help="How many periods are in a season?",
-    )
+split_ratio, model, selected_freq, season_length, season_mstl = render_initial_sidebar()
 
 mae = None
 
@@ -96,6 +49,11 @@ if is_data_in_session():
         st.sidebar.success("Model Fitted Successfully")
         mae, r2, mape = evaluate_performance(forecast, test_data, model)
         current_evaluation = {"mae": mae, "r2": r2, "mape": mape}
+        st.session_state["selected_model"] = selected_model
+        st.session_state["freq"] = selected_freq
+        st.session_state["season_length"] = season_length
+        st.session_state["season_mstl"] = season_mstl
+        st.session_state["split_ratio"] = split_ratio
 
     st.write(
         f"### Train-Test Split Visualization ({split_ratio}% Train, {100 - split_ratio}% Test)"

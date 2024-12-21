@@ -24,11 +24,84 @@ from sklearn.metrics import (
 def load_data_from_session():
     """Load all data from session state"""
     return (
-        # st.session_state["uploaded_data"],
         st.session_state["x_axis"],
         st.session_state["y_axis"],
         st.session_state["transformed_data"],
     )
+
+
+def load_model_data_from_session():
+    return (
+        st.session_state["selected_model"],
+        st.session_state["freq"],
+        st.session_state["season_length"],
+        st.session_state["season_mstl"],
+        st.session_state["split_ratio"],
+    )
+
+
+def is_model_data_in_session():
+    return (
+        "selected_model" in st.session_state
+        and "freq" in st.session_state
+        and "season_length" in st.session_state
+        and "season_mstl" in st.session_state
+    )
+
+
+def render_initial_sidebar():
+    st.sidebar.header("Train-Test Split")
+    split_ratio = st.sidebar.slider(
+        "Select Train-Test Split Ratio (%)",
+        min_value=50,
+        max_value=90,
+        value=70,
+        step=1,
+    )
+
+    model_list = return_imported_models()
+    model = st.sidebar.selectbox(
+        "Select Model",
+        [model for model in model_list],
+        help="""
+    - **AutoARIMA**: Automatically selects the best ARIMA model for your data.  
+      **Pros**: No manual tuning, handles trends and seasonality, adaptable to various datasets.  
+    - **SeasonalNaive**: Predicts by repeating the last observed seasonal pattern.  
+      **Pros**: Simple, fast, effective for strong seasonality.  
+    - **HoltWinters**: Captures trends and seasonality using weighted smoothing.  
+      **Pros**: Robust for data with clear patterns, easy to interpret.  
+    - **HistoricAverage**: Forecasts using the average of historical data.  
+      **Pros**: Extremely simple, efficient, and suitable for stationary data.  
+    - **MSTL**: Decomposes data into multiple seasonal components, trend, and residuals.  
+      **Pros**: Ideal for complex seasonality, flexible, and interpretable.
+    """,
+    )
+
+    freq = return_frequency()
+    frequency = st.sidebar.selectbox(
+        "Select Frequency",
+        [freq for freq in freq.keys()],
+        help="Select the frequency of the underlying data",
+    )
+    selected_freq = freq.get(frequency)
+
+    season_length = st.sidebar.number_input(
+        "Season Length",
+        min_value=1,
+        placeholder="Type a number...",
+        help="How many periods are in a season?",
+    )
+
+    season_mstl = 0
+
+    if model == "MSTL":
+        season_mstl = st.sidebar.number_input(
+            "Second Season Length",
+            min_value=0,
+            placeholder="Type a number...",
+            help="How many periods are in a season?",
+        )
+    return split_ratio, model, selected_freq, season_length, season_mstl
 
 
 def train_test_split(data, split_ratio):
