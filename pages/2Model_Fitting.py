@@ -73,7 +73,7 @@ if is_data_in_session():
             )
         with col2:
             st.metric(
-                label="R2",
+                label="R²",
                 value=r2,
                 help="Indicates how well the forecast explains the variance in the actual data. Values closer to 1 signify a better fit.",
                 delta=None

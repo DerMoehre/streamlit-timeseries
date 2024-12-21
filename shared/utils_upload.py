@@ -7,12 +7,32 @@ import pandas as pd
 ####### PAGE 1: Upload your Data #######
 
 
+def select_columns(dataframe):
+    x_axis = st.sidebar.selectbox(
+        "**Select X-Axis**",
+        dataframe.columns,
+        key="temp_x_axis",
+        index=dataframe.columns.tolist().index(
+            st.session_state.get("x_axis", dataframe.columns[0])
+        ),
+    )
+    y_axis = st.sidebar.selectbox(
+        "**Select Y-Axis**",
+        dataframe.columns,
+        key="temp_y_axis",
+        index=dataframe.columns.tolist().index(
+            st.session_state.get("y_axis", dataframe.columns[1])
+        ),
+    )
+    return x_axis, y_axis
+
+
 def render_initial_main_content():
     # Instructions when no data is uploaded
     st.markdown(
         """
         ## Procedure
-        1. Upload your file on the right side 👈
+        1. Upload your file on the left side 👈
         2. Choose the right columns in your data for the **X** and **Y** axis
         3. Submit your choice with the button
         You will get the plotted graph, a brief description of the input data, and the data itself.
@@ -61,13 +81,6 @@ def is_data_in_session():
 
 def process_data(df=None, x_col=None, y_col=None):
     """Process the DataFrame and generate content."""
-    # Use session state if inputs are not provided
-    if df is None:
-        df = st.session_state.get("uploaded_data")
-    if x_col is None:
-        x_col = st.session_state.get("x_axis")
-    if y_col is None:
-        y_col = st.session_state.get("y_axis")
 
     # Save transformed data to session
     if "transformed_data" not in st.session_state:

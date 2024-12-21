@@ -44,7 +44,7 @@ def render_model_sidebar(model, freq, season_length, season_mstl):
     model_performance = st.session_state.get("last_evaluation")
     st.sidebar.header("Model Performance")
     st.sidebar.write(f"**MAE:** {model_performance.get('mae')}")
-    st.sidebar.write(f"**R2:** {model_performance.get('r2')}")
+    st.sidebar.write(f"**R²:** {model_performance.get('r2')}")
     st.sidebar.write(f"**MAPE:** {model_performance.get('mape')}")
     st.sidebar.divider()
     forecast_horizon = st.sidebar.number_input(
@@ -66,7 +66,7 @@ def forecast_plot(data, x_axis, y_axis, model, forecast=None):
             y=forecast[model],
             mode="lines",
             name="Forecast",
-            line=dict(color="purple", width=4, dash="dot"),
+            line=dict(color="purple"),
         )
     fig.update_layout(
         xaxis_title="Date", yaxis_title="Values", legend_title="Data Split"
