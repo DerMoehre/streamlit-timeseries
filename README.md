@@ -2,6 +2,9 @@
 
 A **Time Series Analysis Dashboard** built using Python and Streamlit, designed for interactive data visualization, model fitting, and forecasting. This project leverages powerful forecasting models from **Nixtla's `statsforecast` package** and integrates them into a user-friendly, web-based application.
 
+https://github.com/user-attachments/assets/9d1642c1-17f3-467c-b4be-be0a94619556
+
+
 ## Features
 
 ### Data Upload and Management
