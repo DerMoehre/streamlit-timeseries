@@ -30,25 +30,6 @@ def load_data_from_session():
     )
 
 
-def load_model_data_from_session():
-    return (
-        st.session_state["selected_model"],
-        st.session_state["freq"],
-        st.session_state["season_length"],
-        st.session_state["season_mstl"],
-        st.session_state["split_ratio"],
-    )
-
-
-def is_model_data_in_session():
-    return (
-        "selected_model" in st.session_state
-        and "freq" in st.session_state
-        and "season_length" in st.session_state
-        and "season_mstl" in st.session_state
-    )
-
-
 def render_initial_sidebar():
     st.sidebar.header("Train-Test Split")
     split_ratio = st.sidebar.slider(
