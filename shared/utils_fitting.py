@@ -40,49 +40,58 @@ def render_initial_sidebar():
         step=1,
     )
 
-    model_list = return_imported_models()
-    model = st.sidebar.selectbox(
-        "Select Model",
-        [model for model in model_list],
-        help="""
-    - **AutoARIMA**: Automatically selects the best ARIMA model for your data.  
-      **Pros**: No manual tuning, handles trends and seasonality, adaptable to various datasets.  
-    - **SeasonalNaive**: Predicts by repeating the last observed seasonal pattern.  
-      **Pros**: Simple, fast, effective for strong seasonality.  
-    - **HoltWinters**: Captures trends and seasonality using weighted smoothing.  
-      **Pros**: Robust for data with clear patterns, easy to interpret.  
-    - **HistoricAverage**: Forecasts using the average of historical data.  
-      **Pros**: Extremely simple, efficient, and suitable for stationary data.  
-    - **MSTL**: Decomposes data into multiple seasonal components, trend, and residuals.  
-      **Pros**: Ideal for complex seasonality, flexible, and interpretable.
-    """,
-    )
+    type_selector = st.sidebar.radio(
+        "Select Modeltype",
+        ["Statistics", "Machine Learning"],
+         horizontal=True
+         )
+    if type_selector == "Statistics":
+        model_list = return_imported_stat_models()
+        model = st.sidebar.selectbox(
+            "Select Model",
+            [model for model in model_list],
+            help="""
+        - **AutoARIMA**: Automatically selects the best ARIMA model for your data.  
+          **Pros**: No manual tuning, handles trends and seasonality, adaptable to various datasets.  
+        - **SeasonalNaive**: Predicts by repeating the last observed seasonal pattern.  
+          **Pros**: Simple, fast, effective for strong seasonality.  
+        - **HoltWinters**: Captures trends and seasonality using weighted smoothing.  
+          **Pros**: Robust for data with clear patterns, easy to interpret.  
+        - **HistoricAverage**: Forecasts using the average of historical data.  
+          **Pros**: Extremely simple, efficient, and suitable for stationary data.  
+        - **MSTL**: Decomposes data into multiple seasonal components, trend, and residuals.  
+          **Pros**: Ideal for complex seasonality, flexible, and interpretable.
+        """,
+        )
 
-    freq = return_frequency()
-    frequency = st.sidebar.selectbox(
-        "Select Frequency",
-        [freq for freq in freq.keys()],
-        help="Select the frequency of the underlying data",
-    )
-    selected_freq = freq.get(frequency)
+        freq = return_frequency()
+        frequency = st.sidebar.selectbox(
+            "Select Frequency",
+            [freq for freq in freq.keys()],
+            help="Select the frequency of the underlying data",
+        )
+        selected_freq = freq.get(frequency)
 
-    season_length = st.sidebar.number_input(
-        "Season Length",
-        min_value=1,
-        placeholder="Type a number...",
-        help="How many periods are in a season?",
-    )
-
-    season_mstl = 0
-
-    if model == "MSTL":
-        season_mstl = st.sidebar.number_input(
-            "Second Season Length",
-            min_value=0,
+        season_length = st.sidebar.number_input(
+            "Season Length",
+            min_value=1,
             placeholder="Type a number...",
             help="How many periods are in a season?",
         )
-    return split_ratio, model, selected_freq, season_length, season_mstl
+
+        season_mstl = 0
+
+        if model == "MSTL":
+            season_mstl = st.sidebar.number_input(
+                "Second Season Length",
+                min_value=0,
+                placeholder="Type a number...",
+                help="How many periods are in a season?",
+            )
+        return split_ratio, model, selected_freq, season_length, season_mstl
+    else:
+        st.sidebar.write("Currently not implemented - Coming soon")
+        return None, None, None, None, None
 
 
 def train_test_split(data, split_ratio):
@@ -94,7 +103,7 @@ def train_test_split(data, split_ratio):
     return train_data, test_data
 
 
-def return_imported_models():
+def return_imported_stat_models():
     return ["AutoARIMA", "SeasonalNaive", "HoltWinters", "HistoricAverage", "MSTL"]
 
 
