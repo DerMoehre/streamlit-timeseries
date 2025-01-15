@@ -2,6 +2,8 @@ import streamlit as st
 import csv
 import plotly.express as px
 import pandas as pd
+from statsmodels.tsa.seasonal import seasonal_decompose 
+import matplotlib.pyplot as plt
 
 
 ####### PAGE 1: Upload your Data #######
@@ -89,7 +91,26 @@ def process_data(df=None, x_col=None, y_col=None):
     # Plot
     st.write(f"### Plot: {x_col} vs {y_col}")
     fig = px.line(df, x=x_col, y=y_col, title=f"{x_col} vs {y_col}")
+    season_data = seasonal_decompose(df[y_col], model = "add", period=12)
     st.plotly_chart(fig, use_container_width=True)
+
+    decompose_df = pd.DataFrame({
+        'date': df.index,
+        'observed': season_data.observed,
+        'trend': season_data.trend,
+        'seasonal': season_data.seasonal,
+        'residual': season_data.resid
+    })
+
+    decomposed_df_long = decompose_df.melt(id_vars="date", value_vars=['observed', 'trend', 'seasonal', 'residual'],
+                                        var_name='component', value_name='value')
+
+    # Plot the decomposition using Plotly Express
+    fig_season = px.line(decomposed_df_long, x='date', y='value', color='component', 
+              title="Decomposed Time Series", labels={'value': 'Value', 'date': 'Date'})
+
+    # Show the plot in Streamlit
+    st.plotly_chart(fig_season)
 
     # Layout: DataFrame and description side by side
     col1, col2 = st.columns(2)

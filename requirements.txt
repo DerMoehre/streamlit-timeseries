@@ -1,6 +1,8 @@
 streamlit
 pandas
 plotly
+matplotlib
 statsforecast
+statsmodels
 utilsforecast
 scikit-learn
